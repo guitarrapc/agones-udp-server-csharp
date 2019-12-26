@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using MicroBatchFramework;
@@ -13,6 +13,8 @@ namespace Agones
     class Program
     {
         private static readonly Lazy<Random> jitterer = new Lazy<Random>(() => new Random());
+        internal static readonly string ClientName = "Agones";
+
         static async Task Main(string[] args)
         {
             await BatchHost.CreateDefaultBuilder()
@@ -27,6 +29,7 @@ namespace Agones
                     services.AddSingleton<IAgonesSdk, AgonesSdk>();
                     services.AddHostedService<AgonesHostedService>();
                 })
+                .ConfigureLogging(logging => logging.AddFilter($"System.Net.Http.HttpClient.{ClientName}", LogLevel.Warning))
                 .RunBatchEngineAsync<EchoUdpServerBatch>(args);
         }
 
@@ -40,15 +43,18 @@ namespace Agones
         readonly string host = "0.0.0.0";
         readonly int port = 7654;
 
-        public EchoUdpServerBatch(IAgonesSdk agonesSdk)
+        readonly ILogger<EchoUdpServerBatch> logger;
+
+        public EchoUdpServerBatch(ILogger<EchoUdpServerBatch> logger, IAgonesSdk agonesSdk)
         {
+            this.logger = logger;
             _agonesSdk = agonesSdk;
         }
 
         [Command("run", "run echo server")]
         public async Task RunEchoServer()
         {
-            Context.Logger.LogInformation($"{DateTime.Now} Starting Echo UdpServer with AgonesSdk. {host}:{port}");
+            logger.LogInformation($"{DateTime.Now} Starting Echo UdpServer with AgonesSdk. {host}:{port}");
             await new EchoUdpServer(host, port, _agonesSdk, Context.Logger).ServerLoop();
         }
     }

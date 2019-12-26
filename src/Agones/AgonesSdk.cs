@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Net;
@@ -26,6 +26,8 @@ namespace Agones
         readonly CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
         readonly IHttpClientFactory _httpClientFactory;
         readonly ILogger<IAgonesSdk> _logger;
+
+        static int healthCount = 0;
 
         public AgonesSdk(IHttpClientFactory httpClientFactory, ILogger<IAgonesSdk> logger)
         {
@@ -58,50 +60,53 @@ namespace Agones
 
         public async Task<bool> Ready()
         {
-            _logger.LogDebug("Calling Ready sdk.");
+            _logger.LogDebug($"{DateTime.Now} {nameof(AgonesSdk)} Calling sdk {nameof(Ready)}.");
             var (ok, _) = await SendRequestAsync<NullResponse>("/ready", "{}");
             return ok;
         }
 
         public async Task<bool> Allocate()
         {
-            _logger.LogDebug("Calling Allocate sdk.");
+            _logger.LogDebug($"{DateTime.Now} {nameof(AgonesSdk)} Calling sdk {nameof(Allocate)}.");
             var (ok, _) = await SendRequestAsync<NullResponse>("/allocate", "{}");
             return ok;
         }
 
         public async Task<bool> Shutdown()
         {
-            _logger.LogDebug("Calling Shutdown sdk.");
+            _logger.LogDebug($"{DateTime.Now} {nameof(AgonesSdk)} Calling sdk {nameof(Shutdown)}.");
             var (ok, _) = await SendRequestAsync<NullResponse>("/shutdown", "{}");
             return ok;
         }
 
         public async Task<bool> Health()
         {
-            _logger.LogDebug($"{DateTime.Now} Calling Health sdk.");
+            if ((healthCount % 10) == 0)
+                _logger.LogInformation($"{DateTime.Now} {nameof(AgonesSdk)} health called for {healthCount}.");
+            _logger.LogDebug($"{DateTime.Now} {nameof(AgonesSdk)} Calling sdk {nameof(Health)}.");
             var (ok, _) = await SendRequestAsync<NullResponse>("/health", "{}");
+            healthCount++;
             return ok;
         }
 
         public async Task<(bool, GameServerResponse)> GameServer()
         {
             // TODO: return GameServer
-            _logger.LogDebug("Calling GetGameServer sdk.");
+            _logger.LogDebug($"{DateTime.Now} {nameof(AgonesSdk)} Calling sdk {nameof(GameServer)}.");
             var response = await SendRequestAsync<GameServerResponse>("/gameserver", "{}", HttpMethod.Get);
             return response;
         }
 
         public async Task<(bool, GameServerResponse)> Watch()
         {
-            _logger.LogDebug("Calling WatchGameServer sdk.");
+            _logger.LogDebug($"{DateTime.Now} {nameof(AgonesSdk)} Calling sdk {nameof(Watch)}.");
             var response = await SendRequestAsync<GameServerResponse>("/watch/gameserver", "{}", HttpMethod.Get);
             return response;
         }
 
         public async Task<bool> Reserve(int seconds)
         {
-            _logger.LogDebug("Calling Reserve sdk.");
+            _logger.LogDebug($"{DateTime.Now} {nameof(AgonesSdk)} Calling sdk {nameof(Reserve)}.");
             string json = Utf8Json.JsonSerializer.ToJsonString(new ReserveBody(seconds));
             var (ok, _) = await SendRequestAsync<NullResponse>("/reserve", json);
             return ok;
@@ -109,7 +114,7 @@ namespace Agones
 
         public async Task<bool> Label(string key, string value)
         {
-            _logger.LogDebug("Calling SetLabel sdk.");
+            _logger.LogDebug($"{DateTime.Now} {nameof(AgonesSdk)} Calling sdk {nameof(Label)}.");
             string json = Utf8Json.JsonSerializer.ToJsonString(new KeyValueMessage(key, value));
             var (ok, _) = await SendRequestAsync<NullResponse>("/metadata/label", json, HttpMethod.Put);
             return ok;
@@ -117,7 +122,7 @@ namespace Agones
 
         public async Task<bool> Annotation(string key, string value)
         {
-            _logger.LogDebug("Calling SetAnnotation sdk.");
+            _logger.LogDebug($"{DateTime.Now} {nameof(AgonesSdk)} Calling sdk {nameof(Annotation)}.");
             string json = Utf8Json.JsonSerializer.ToJsonString(new KeyValueMessage(key, value));
             var (ok, _) = await SendRequestAsync<NullResponse>("/metadata/annotation", json, HttpMethod.Put);
             return ok;
@@ -155,7 +160,7 @@ namespace Agones
             TResponse response = null;
             if (cancellationTokenSource.IsCancellationRequested) return (false, response);
 
-            var httpClient = _httpClientFactory.CreateClient("agones");
+            var httpClient = _httpClientFactory.CreateClient(Program.ClientName);
             httpClient.BaseAddress = SideCarAddress;
             var requestMessage = new HttpRequestMessage(method, api);
             try
