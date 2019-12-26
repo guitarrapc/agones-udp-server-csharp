@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Agones": {
+      "commandName": "Project",
+      "commandLineArgs": "run"
+    }
+  }
+}
