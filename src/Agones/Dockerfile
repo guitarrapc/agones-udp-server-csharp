@@ -1,7 +1,8 @@
-FROM mcr.microsoft.com/dotnet/core/runtime:3.0-buster-slim AS base
+FROM mcr.microsoft.com/dotnet/core/runtime:3.1-buster-slim AS base
 WORKDIR /app
+EXPOSE 7654
 
-FROM mcr.microsoft.com/dotnet/core/sdk:3.0-buster AS build
+FROM mcr.microsoft.com/dotnet/core/sdk:3.1-buster AS build
 WORKDIR /
 COPY ["src/Agones/Agones.csproj", "src/Agones/"]
 RUN dotnet restore "src/Agones/Agones.csproj"
