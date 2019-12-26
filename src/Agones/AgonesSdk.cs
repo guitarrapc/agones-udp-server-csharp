@@ -11,7 +11,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Agones
 {
-    // ref: sdk sample https://github.com/googleforgames/agones/blob/release-1.0.0/sdks/go/sdk.go
+    // ref: sdk sample https://github.com/googleforgames/agones/blob/release-1.2.0/sdks/go/sdk.go
     public class AgonesSdk : IAgonesSdk
     {
         public int HealthIntervalSecond { get; set; } = 2;
@@ -54,28 +54,28 @@ namespace Agones
 
         public async Task<bool> Ready()
         {
-            _logger.LogInformation("Calling Ready sdk.");
+            _logger.LogDebug("Calling Ready sdk.");
             var (ok, _) = await SendRequestAsync<NullResponse>("/ready", "{}");
             return ok;
         }
 
         public async Task<bool> Allocate()
         {
-            _logger.LogInformation("Calling Allocate sdk.");
+            _logger.LogDebug("Calling Allocate sdk.");
             var (ok, _) = await SendRequestAsync<NullResponse>("/allocate", "{}");
             return ok;
         }
 
         public async Task<bool> Shutdown()
         {
-            _logger.LogInformation("Calling Shutdown sdk.");
+            _logger.LogDebug("Calling Shutdown sdk.");
             var (ok, _) = await SendRequestAsync<NullResponse>("/shutdown", "{}");
             return ok;
         }
 
         public async Task<bool> Health()
         {
-            _logger.LogInformation($"{DateTime.Now} Calling Health sdk.");
+            _logger.LogDebug($"{DateTime.Now} Calling Health sdk.");
             var (ok, _) = await SendRequestAsync<NullResponse>("/health", "{}");
             return ok;
         }
@@ -83,21 +83,21 @@ namespace Agones
         public async Task<(bool, GameServerResponse)> GameServer()
         {
             // TODO: return GameServer
-            _logger.LogInformation("Calling GetGameServer sdk.");
+            _logger.LogDebug("Calling GetGameServer sdk.");
             var response = await SendRequestAsync<GameServerResponse>("/gameserver", "{}", HttpMethod.Get);
             return response;
         }
 
         public async Task<(bool, GameServerResponse)> Watch()
         {
-            _logger.LogInformation("Calling WatchGameServer sdk.");
+            _logger.LogDebug("Calling WatchGameServer sdk.");
             var response = await SendRequestAsync<GameServerResponse>("/watch/gameserver", "{}", HttpMethod.Get);
             return response;
         }
 
         public async Task<bool> Reserve(int seconds)
         {
-            _logger.LogInformation("Calling Reserve sdk.");
+            _logger.LogDebug("Calling Reserve sdk.");
             string json = Utf8Json.JsonSerializer.ToJsonString(new ReserveBody(seconds));
             var (ok, _) = await SendRequestAsync<NullResponse>("/reserve", json);
             return ok;
@@ -105,7 +105,7 @@ namespace Agones
 
         public async Task<bool> SetLabel(string key, string value)
         {
-            _logger.LogInformation("Calling SetLabel sdk.");
+            _logger.LogDebug("Calling SetLabel sdk.");
             string json = Utf8Json.JsonSerializer.ToJsonString(new KeyValueMessage(key, value));
             var (ok, _) = await SendRequestAsync<NullResponse>("/metadata/label", json, HttpMethod.Put);
             return ok;
@@ -113,7 +113,7 @@ namespace Agones
 
         public async Task<bool> SetAnnotation(string key, string value)
         {
-            _logger.LogInformation("Calling SetAnnotation sdk.");
+            _logger.LogDebug("Calling SetAnnotation sdk.");
             string json = Utf8Json.JsonSerializer.ToJsonString(new KeyValueMessage(key, value));
             var (ok, _) = await SendRequestAsync<NullResponse>("/metadata/annotation", json, HttpMethod.Put);
             return ok;
@@ -170,7 +170,7 @@ namespace Agones
                     }
                 }
                 var res = await httpClient.SendAsync(requestMessage);
-                _logger.LogInformation($"Agones SendRequest ok: {api} {response}");
+                _logger.LogDebug($"Agones SendRequest ok: {api} {response}");
 
                 // result
                 var content = await res.Content.ReadAsByteArrayAsync();
@@ -183,7 +183,7 @@ namespace Agones
             }
             catch (Exception ex)
             {
-                _logger.LogInformation($"Agones SendRequest failed: {api} {ex.GetType().FullName} {ex.Message} {ex.StackTrace}");
+                _logger.LogDebug($"Agones SendRequest failed: {api} {ex.GetType().FullName} {ex.Message} {ex.StackTrace}");
                 return (false, response);
             }
         }

@@ -8,24 +8,25 @@ using Microsoft.Extensions.Logging;
 
 namespace Agones
 {
-    public class AgonesHostedService : IHostedService
+    public class AgonesHostedService : BackgroundService
     {
         readonly IAgonesSdk _agonesSdk;
-        readonly ILogger<AgonesHostedService> _logger;
-        public AgonesHostedService(IAgonesSdk agonesSdk, ILogger<AgonesHostedService> logger)
+        readonly ILogger<MicroBatchFramework.BatchEngine> _logger;
+        public AgonesHostedService(IAgonesSdk agonesSdk, ILogger<MicroBatchFramework.BatchEngine> logger)
         {
             _agonesSdk = agonesSdk;
             _logger = logger;
         }
 
-        public async Task StartAsync(CancellationToken cancellationToken)
+        protected override async Task ExecuteAsync(CancellationToken cancellationToken)
         {
             _logger.LogInformation($"{DateTime.Now} Starting Health Ping");
             await _agonesSdk.StartAsync(cancellationToken);
         }
 
-        public async Task StopAsync(CancellationToken cancellationToken)
+        public override async Task StopAsync(CancellationToken cancellationToken)
         {
+            _logger.LogInformation($"{DateTime.Now} Cancel requested");
             await _agonesSdk.StopAsync();
         }
     }

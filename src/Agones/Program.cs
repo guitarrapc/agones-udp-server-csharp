@@ -14,7 +14,7 @@ namespace Agones
         {
             await BatchHost.CreateDefaultBuilder()
                 .ConfigureServices((context, services) =>
-                {
+                {                    
                     services.AddHttpClient("agones", client =>
                     {
                         client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
@@ -28,15 +28,16 @@ namespace Agones
 
     public class EchoUdpServerBatch : BatchBase
     {
-        IAgonesSdk _agonesSdk;
-        string host = "0.0.0.0";
-        int port = 7654;
+        readonly IAgonesSdk _agonesSdk;
+        readonly string host = "0.0.0.0";
+        readonly int port = 7654;
 
         public EchoUdpServerBatch(IAgonesSdk agonesSdk)
         {
             _agonesSdk = agonesSdk;
         }
 
+        [Command("run", "run echo server")]
         public async Task RunEchoServer()
         {
             Context.Logger.LogInformation($"{DateTime.Now} Starting Echo UdpServer with AgonesSdk. {host}:{port}");
