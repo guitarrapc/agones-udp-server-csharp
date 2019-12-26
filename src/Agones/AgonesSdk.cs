@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Net;
@@ -103,7 +103,7 @@ namespace Agones
             return ok;
         }
 
-        public async Task<bool> SetLabel(string key, string value)
+        public async Task<bool> Label(string key, string value)
         {
             _logger.LogDebug("Calling SetLabel sdk.");
             string json = Utf8Json.JsonSerializer.ToJsonString(new KeyValueMessage(key, value));
@@ -111,7 +111,7 @@ namespace Agones
             return ok;
         }
 
-        public async Task<bool> SetAnnotation(string key, string value)
+        public async Task<bool> Annotation(string key, string value)
         {
             _logger.LogDebug("Calling SetAnnotation sdk.");
             string json = Utf8Json.JsonSerializer.ToJsonString(new KeyValueMessage(key, value));

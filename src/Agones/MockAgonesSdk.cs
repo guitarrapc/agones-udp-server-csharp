@@ -50,12 +50,12 @@ namespace Agones
             return Task.FromResult<bool>(true);
         }
 
-        public Task<bool> SetAnnotation(string key, string value)
+        public Task<bool> Annotation(string key, string value)
         {
             return Task.FromResult<bool>(true);
         }
 
-        public Task<bool> SetLabel(string key, string value)
+        public Task<bool> Label(string key, string value)
         {
             return Task.FromResult<bool>(true);
         }

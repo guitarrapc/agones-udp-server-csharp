@@ -84,10 +84,10 @@ namespace Agones
                             {
                                 case 1:
                                     // legacy format
-                                    await _agonesSdk.SetLabel("timestamp", DateTime.Now.ToUniversalTime().ToString());
+                                    await _agonesSdk.Label("timestamp", DateTime.Now.ToUniversalTime().ToString());
                                     break;
                                 case 3:
-                                    await _agonesSdk.SetLabel(parts[1], parts[2]);
+                                    await _agonesSdk.Label(parts[1], parts[2]);
                                     break;
                                 default:
                                     var labelMessage = _encoding.GetBytes("ERROR: Invalid LABEL command, must use zero or 2 arguments\n");
@@ -100,10 +100,10 @@ namespace Agones
                             {
                                 case 1:
                                     // legacy format
-                                    await _agonesSdk.SetAnnotation("timestamp", DateTime.UtcNow.ToUniversalTime().ToString());
+                                    await _agonesSdk.Annotation("timestamp", DateTime.UtcNow.ToUniversalTime().ToString());
                                     break;
                                 case 3:
-                                    await _agonesSdk.SetAnnotation(parts[1], parts[2]);
+                                    await _agonesSdk.Annotation(parts[1], parts[2]);
                                     break;
                                 default:
                                     var labelMessage = _encoding.GetBytes("ERROR: Invalid ANNOTATION command, must use zero or 2 arguments\n");

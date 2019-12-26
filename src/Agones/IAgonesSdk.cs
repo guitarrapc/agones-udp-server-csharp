@@ -57,7 +57,7 @@ namespace Agones
         /// <param name="key"></param>
         /// <param name="value"></param>
         /// <returns></returns>
-        Task<bool> SetLabel(string key, string value);
+        Task<bool> Label(string key, string value);
         /// <summary>
         /// Apply a Annotation to the backing GameServer metadata
         /// </summary>
@@ -65,7 +65,7 @@ namespace Agones
         /// <param name="key"></param>
         /// <param name="value"></param>
         /// <returns></returns>
-        Task<bool> SetAnnotation(string key, string value);
+        Task<bool> Annotation(string key, string value);
         /// <summary>
         /// Marks the GameServer as the Reserved state for Duration
         /// </summary>
