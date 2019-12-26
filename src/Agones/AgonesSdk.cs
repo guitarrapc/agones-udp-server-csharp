@@ -23,7 +23,7 @@ namespace Agones
         // grpc: localhost on port 9357
         // http: localhost on port 9358
         readonly Uri SideCarAddress = new Uri("http://127.0.0.1:9358");
-        readonly CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+        readonly CancellationTokenSource cts = new CancellationTokenSource();
         readonly IHttpClientFactory _httpClientFactory;
         readonly ILogger<IAgonesSdk> _logger;
 
@@ -45,7 +45,7 @@ namespace Agones
         {
             if (token == null)
             {
-                token = cancellationTokenSource.Token;
+                token = cts.Token;
             }
             var task = HealthCheckAsync(token);
             return task;
@@ -54,7 +54,7 @@ namespace Agones
         // exit for IHostedService
         public Task StopAsync()
         {
-            cancellationTokenSource?.Dispose();
+            cts?.Dispose();
             return Task.CompletedTask;
         }
 
@@ -147,7 +147,7 @@ namespace Agones
                     _logger.LogError($"health detect error, let retry. {ex.Message}");
                 }
 
-                await Task.Delay(TimeSpan.FromSeconds(HealthIntervalSecond));
+                await Task.Delay(TimeSpan.FromSeconds(HealthIntervalSecond), cts.Token);
             }
         }
 
@@ -158,7 +158,7 @@ namespace Agones
         private async Task<(bool, TResponse)> SendRequestAsync<TResponse>(string api, string json, HttpMethod method, bool useCache = true) where TResponse : class
         {
             TResponse response = null;
-            if (cancellationTokenSource.IsCancellationRequested) return (false, response);
+            if (cts.IsCancellationRequested) throw new OperationCanceledException(cts.Token);
 
             var httpClient = _httpClientFactory.CreateClient(Program.ClientName);
             httpClient.BaseAddress = SideCarAddress;

@@ -55,7 +55,7 @@ namespace Agones
         public async Task RunEchoServer()
         {
             logger.LogInformation($"{DateTime.Now} Starting Echo UdpServer with AgonesSdk. {host}:{port}");
-            await new EchoUdpServer(host, port, _agonesSdk, Context.Logger).ServerLoop();
+            await new EchoUdpServer(host, port, _agonesSdk, Context.Logger, Context.CancellationToken).ServerLoop();
         }
     }
 
