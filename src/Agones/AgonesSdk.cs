@@ -20,9 +20,9 @@ namespace Agones
         static readonly ConcurrentDictionary<string, StringContent> jsonCache = new ConcurrentDictionary<string, StringContent>();
 
         // ref: sdk server https://github.com/googleforgames/agones/blob/master/cmd/sdk-server/main.go
-        // grpc: localhost on port 59357
-        // http: localhost on port 59358
-        readonly Uri SideCarAddress = new Uri("http://127.0.0.1:59358");
+        // grpc: localhost on port 9357
+        // http: localhost on port 9358
+        readonly Uri SideCarAddress = new Uri("http://127.0.0.1:9358");
         readonly CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
         readonly IHttpClientFactory _httpClientFactory;
         readonly ILogger<IAgonesSdk> _logger;
