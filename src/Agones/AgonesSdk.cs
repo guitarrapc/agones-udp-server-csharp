@@ -31,7 +31,11 @@ namespace Agones
         {
             _httpClientFactory = httpClientFactory;
             _logger = logger;
-            jsonCache.TryAdd("{}", new StringContent("{}", encoding, "application/json"));
+
+            // cache empty request content
+            var stringContent = new StringContent("{}", encoding, "application/json");
+            stringContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
+            jsonCache.TryAdd("{}", stringContent);
         }
 
         // entrypoint for IHostedService
