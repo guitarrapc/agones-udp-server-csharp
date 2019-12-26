@@ -62,8 +62,8 @@ namespace Agones
                             _agonesSdk.HealthEnabled = false;
                             break;
                         case "GAMESERVER":
-                            var gameserver = await _agonesSdk.GameServer();
-                            var gameserverMessage = _encoding.GetBytes(gameserver.response.status.address + ":" + gameserver.response.status.ports[0].port + "\n");
+                            var (ok, response) = await _agonesSdk.GameServer();
+                            var gameserverMessage = _encoding.GetBytes(response.status.address + ":" + response.status.ports[0].port + "\n");
                             await udpClient.SendAsync(gameserverMessage, gameserverMessage.Length, sender);
                             break;
                         case "READY":
