@@ -3,7 +3,7 @@
 ## Docker
 
 ```shell
-agones_sdk_version=1.2.0
+agones_sdk_version=1.2.1
 docker build -t agones-udp-server-csharp:${agones_sdk_version} -f src/Agones/Dockerfile .
 docker tag agones-udp-server-csharp:${agones_sdk_version} guitarrapc/agones-udp-server-csharp:${agones_sdk_version}
 docker push guitarrapc/agones-udp-server-csharp:${agones_sdk_version}
