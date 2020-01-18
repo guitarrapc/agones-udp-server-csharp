@@ -49,7 +49,7 @@ namespace WebApplication6
             }
             //app.UseHttpsRedirection();
             app.UseStaticFiles();
-            
+
             // dummy response
             app.UseHealthChecks("/health", new HealthCheckOptions { ResponseWriter = responseWriter });
             app.UseHealthChecks("/ready", new HealthCheckOptions { ResponseWriter = responseWriter });

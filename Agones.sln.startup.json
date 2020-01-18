@@ -54,12 +54,12 @@
   "MultiProjectConfigurations": {
     "agones + mockserver": {
       "Projects": {
-        "Agones": {
-          "CommandLineArguments": "run",
+        "Agones": {},
+        "AgonesMockServer": {
+          "CommandLineArguments": "",
           "WorkingDirectory": "",
           "StartProject": true
-        },
-        "AgonesMockServer": {}
+        }
       }
     }
   }

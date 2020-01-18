@@ -5,6 +5,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using AgonesSdkCsharp;
 using MicroBatchFramework;
 using Microsoft.Extensions.Logging;
 
@@ -42,8 +43,7 @@ namespace Agones
             using (var udpClient = new UdpClient(listener))
             {
                 Console.WriteLine("Marking this server as ready");
-                var isReady = await _agonesSdk.Ready();
-                if (!isReady) throw new Exception("Could not prepare Agones.");
+                await _agonesSdk.Ready(_ct);
 
                 while (!done)
                 {
@@ -72,7 +72,7 @@ namespace Agones
                 case "EXIT":
                     _logger.LogInformation("Shutdown gameserver.");
                     done = true;
-                    await _agonesSdk.Shutdown();
+                    await _agonesSdk.Shutdown(_ct);
                     var exitMessage = _encoding.GetBytes("ACK: " + txt + "\n");
                     await udpClient.SendAsync(exitMessage, exitMessage.Length, sender);
                     break;
@@ -81,32 +81,32 @@ namespace Agones
                     _agonesSdk.HealthEnabled = false;
                     break;
                 case "GAMESERVER":
-                    var (ok, response) = await _agonesSdk.GameServer();
-                    var gameserverMessage = _encoding.GetBytes(response.status.address + ":" + response.status.ports[0].port + "\n");
+                    var response = await _agonesSdk.GameServer(_ct);
+                    var gameserverMessage = _encoding.GetBytes(response.Status.Address + ":" + response.Status.Ports[0].Port + "\n");
                     await udpClient.SendAsync(gameserverMessage, gameserverMessage.Length, sender);
                     break;
                 case "READY":
-                    await _agonesSdk.Ready();
+                    await _agonesSdk.Ready(_ct);
                     break;
                 case "ALLOCATE":
-                    await _agonesSdk.Allocate();
+                    await _agonesSdk.Allocate(_ct);
                     break;
                 case "RESERVE":
                     int.TryParse(parts[1], out var seconds);
-                    await _agonesSdk.Reserve(seconds);
+                    await _agonesSdk.Reserve(seconds, _ct);
                     break;
                 case "WATCH":
-                    await _agonesSdk.Watch();
+                    await _agonesSdk.Watch(_ct);
                     break;
                 case "LABEL":
                     switch (parts.Length)
                     {
                         case 1:
                             // legacy format
-                            await _agonesSdk.Label("timestamp", DateTime.Now.ToUniversalTime().ToString());
+                            await _agonesSdk.Label("timestamp", DateTime.Now.ToUniversalTime().ToString(), _ct);
                             break;
                         case 3:
-                            await _agonesSdk.Label(parts[1], parts[2]);
+                            await _agonesSdk.Label(parts[1], parts[2], _ct);
                             break;
                         default:
                             var labelMessage = _encoding.GetBytes("ERROR: Invalid LABEL command, must use zero or 2 arguments\n");
@@ -119,10 +119,10 @@ namespace Agones
                     {
                         case 1:
                             // legacy format
-                            await _agonesSdk.Annotation("timestamp", DateTime.UtcNow.ToUniversalTime().ToString());
+                            await _agonesSdk.Annotation("timestamp", DateTime.UtcNow.ToUniversalTime().ToString(), _ct);
                             break;
                         case 3:
-                            await _agonesSdk.Annotation(parts[1], parts[2]);
+                            await _agonesSdk.Annotation(parts[1], parts[2], _ct);
                             break;
                         default:
                             var labelMessage = _encoding.GetBytes("ERROR: Invalid ANNOTATION command, must use zero or 2 arguments\n");
