@@ -17,10 +17,10 @@ namespace Agones
         private readonly int _port;
         private readonly Encoding _encoding;
         private readonly IAgonesSdk _agonesSdk;
-        private readonly ILogger<BatchEngine> _logger;
+        private readonly ILogger _logger;
         private readonly CancellationToken _ct;
 
-        public EchoUdpServer(string ipAddress, int port, IAgonesSdk agnoesSdk, ILogger<BatchEngine> logger, CancellationToken ct)
+        public EchoUdpServer(string ipAddress, int port, IAgonesSdk agnoesSdk, ILogger logger, CancellationToken ct)
         {
             _ipAddress = ipAddress;
             _port = port;

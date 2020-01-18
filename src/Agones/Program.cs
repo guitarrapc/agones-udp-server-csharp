@@ -11,8 +11,6 @@ namespace Agones
 {
     class Program
     {
-        private static readonly Lazy<Random> jitterer = new Lazy<Random>(() => new Random());
-
         static async Task Main(string[] args)
         {
             await BatchHost.CreateDefaultBuilder()
@@ -20,9 +18,6 @@ namespace Agones
                 .ConfigureLogging((hostContext, logging) => logging.SetMinimumLevel(LogLevel.Debug))
                 .RunBatchEngineAsync<EchoUdpServerBatch>(args);
         }
-
-        static TimeSpan ExponentialBackkoff(int retryAttempt)
-            => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)) + TimeSpan.FromMilliseconds(jitterer.Value.Next(0, 100));
     }
 
     public class EchoUdpServerBatch : BatchBase
@@ -31,11 +26,11 @@ namespace Agones
         readonly string host = "0.0.0.0";
         readonly int port = 7654;
 
-        readonly ILogger<EchoUdpServerBatch> logger;
+        readonly ILogger logger;
 
-        public EchoUdpServerBatch(ILogger<EchoUdpServerBatch> logger, IAgonesSdk agonesSdk)
+        public EchoUdpServerBatch(ILoggerFactory loggerFactory, IAgonesSdk agonesSdk)
         {
-            this.logger = logger;
+            this.logger = loggerFactory.CreateLogger<EchoUdpServer>();
             _agonesSdk = agonesSdk;
         }
 
@@ -43,7 +38,7 @@ namespace Agones
         public async Task RunEchoServer()
         {
             logger.LogInformation($"{DateTime.Now} Starting Echo UdpServer with AgonesSdk. {host}:{port}");
-            await new EchoUdpServer(host, port, _agonesSdk, Context.Logger, Context.CancellationToken).ServerLoop();
+            await new EchoUdpServer(host, port, _agonesSdk, logger, Context.CancellationToken).ServerLoop();
         }
     }
 
